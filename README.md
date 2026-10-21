@@ -173,5 +173,6 @@ OpenTofu 側の変数は各環境の `variables.tf` を参照してください�
 | --- | --- |
 | `make wait` が IP 無しで失敗する | DHCP の場合、agent の起動前に apply が終わっていることがあります。少し待って `make inventory wait` |
 | `import` コンテンツが無いと言われる | `pvesm set local --content ...,import,snippets` を実行したか確認 |
+| `failed to read file from "local:snippets/..."` | `local` で snippets が無効。ノードで `pvesm set local --content iso,vztmpl,backup,import,snippets` を実行して再度 `make apply` (現在は plan 時に検出します) |
 | snippets のアップロードで SSH エラー | `ssh root@<node>` が鍵で通るか、`ssh-add -l` に鍵があるか確認 |
 | Docker で `port is already allocated` | `ssh_port_base` を変える (`TF_VAR_ssh_port_base=2300 make test`) |

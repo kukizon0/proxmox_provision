@@ -1,5 +1,28 @@
 locals {
   ssh_public_key = trimspace(file(pathexpand(var.ssh_public_key_path)))
+
+  image_datastore_content_types = try(
+    one([for ds in data.proxmox_datastores.image.datastores : ds.content_types if ds.id == var.image_datastore_id]),
+    []
+  )
+  image_datastore_missing_content = setsubtract(["import", "snippets"], local.image_datastore_content_types)
+}
+
+data "proxmox_datastores" "image" {
+  node_name = var.node_name
+}
+
+# import / snippets が無効だと、snippets のアップロード後に
+# "failed to read file from ..." という分かりにくいエラーになるので先に検査する
+check "image_datastore_content" {
+  assert {
+    condition     = length(local.image_datastore_missing_content) == 0
+    error_message = <<-EOT
+      データストア "${var.image_datastore_id}" で ${join(", ", local.image_datastore_missing_content)} コンテンツが有効になっていません。
+      Proxmox ノードで次を実行してください (既存の値に追加する):
+        pvesm set ${var.image_datastore_id} --content ${join(",", sort(setunion(local.image_datastore_content_types, ["import", "snippets"])))}
+    EOT
+  }
 }
 
 # Ubuntu cloud image を Proxmox ノードに取得する (import コンテンツとして保存)
@@ -23,6 +46,13 @@ resource "proxmox_virtual_environment_file" "vendor_data" {
   source_raw {
     file_name = "opentofu-dev-vm-vendor-data.yaml"
     data      = file("${path.module}/vendor-data.yaml")
+  }
+
+  lifecycle {
+    precondition {
+      condition     = contains(local.image_datastore_content_types, "snippets")
+      error_message = "データストア \"${var.image_datastore_id}\" で snippets コンテンツが有効になっていません。check \"image_datastore_content\" の警告に従って pvesm set を実行してください。"
+    }
   }
 }
 
