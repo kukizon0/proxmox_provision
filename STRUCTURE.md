@@ -43,7 +43,7 @@ proxmox-dev-vm/
 │       ├── base/                #   apt パッケージ、ロケール、タイムゾーン、guest agent、PATH
 │       ├── ssh_keys/            #   authorized_keys の登録、sshd のパスワード認証無効化
 │       ├── uv/                  #   uv 本体 (official / pipx)、uv python、uv tool
-│       └── opencode/            #   Node.js (apt) と opencode-ai (npm, ~/.local に)
+│       └── opencode/            #   公式インストーラで ~/.opencode/bin に入れ ~/.local/bin にリンク
 │
 └── scripts/
     └── ssh_args.py              # make ssh 用: インベントリから ssh の引数を作る

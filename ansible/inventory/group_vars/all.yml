@@ -45,7 +45,9 @@ uv_tools:
   - ruff
 
 # --- opencode ---
+# 公式インストーラ (https://opencode.ai/install) で ~/.opencode/bin に入れる
 opencode_version: "1.19.3"    # "latest" も可
+opencode_install_url: https://opencode.ai/install
 # ~/.config/opencode/opencode.json に書き出す設定 (空なら作成しない)
 opencode_config: {}
 #  $schema: https://opencode.ai/config.json

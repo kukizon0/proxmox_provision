@@ -22,7 +22,7 @@ VM に入るもの:
 - 基本パッケージ (git, build-essential, ripgrep, tmux, jq …)、タイムゾーン Asia/Tokyo、ja_JP.UTF-8 ロケール
 - qemu-guest-agent
 - [uv](https://docs.astral.sh/uv/) と uv で入れる Python 3.13、`uv tool` で入れるツール (既定: ruff)
-- [opencode](https://opencode.ai/) (npm の `opencode-ai`。Node.js は apt で入れる)
+- [opencode](https://opencode.ai/) (公式インストーラで `~/.opencode/bin` に入れ、`~/.local/bin` にリンク。Node.js は不要)
 
 ファイル構成と処理の流れは [STRUCTURE.md](STRUCTURE.md) を見てください。
 
@@ -169,6 +169,7 @@ Ansible の設定は `ansible/inventory/group_vars/all.yml` にまとまって�
 | `uv_python_versions` | `["3.13"]` | `uv python install` するバージョン |
 | `uv_tools` | `[ruff]` | `uv tool install` するツール |
 | `opencode_version` | `1.19.3` | `latest` も可 |
+| `opencode_install_url` | `https://opencode.ai/install` | 公式インストーラの URL |
 | `opencode_config` | `{}` | `~/.config/opencode/opencode.json` の中身 (空なら作らない) |
 
 環境ごとの上書きは `group_vars/proxmox.yml` / `group_vars/docker.yml` に書きます。
@@ -180,7 +181,7 @@ OpenTofu 側の変数は各環境の `variables.tf` を参照してください�
 - tfstate はローカル (`tofu/envs/<env>/terraform.tfstate`) に保存されます。`.gitignore` 済みです。
 - VM を作り直すとホスト鍵が変わるので、SSH はプロジェクト専用の `.state/known_hosts_<env>` を使います
   (`make destroy` で削除)。
-- 作業端末が企業プロキシの内側にある場合、VM / コンテナからも astral.sh、npm、GitHub などに
+- 作業端末が企業プロキシの内側にある場合、VM / コンテナからも astral.sh、opencode.ai、GitHub、PyPI などに
   HTTPS で出られる必要があります。
 
 ## トラブルシュート

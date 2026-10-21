@@ -1,23 +1,54 @@
 ---
-- name: Install Node.js and npm
-  ansible.builtin.apt:
-    name: [nodejs, npm]
-    state: present
-
 - name: Install opencode as {{ dev_user }}
   become: true
   become_user: "{{ dev_user }}"
-  environment:
-    # sudo せずに ~/.local/bin/opencode に入れる
-    NPM_CONFIG_PREFIX: "{{ dev_home }}/.local"
-    PATH: "{{ dev_home }}/.local/bin:{{ ansible_facts.env.PATH }}"
   block:
-    - name: Install opencode-ai from npm
-      community.general.npm:
-        name: opencode-ai
-        version: "{{ omit if opencode_version == 'latest' else opencode_version }}"
-        state: "{{ 'latest' if opencode_version == 'latest' else 'present' }}"
-        global: true
+    - name: Check installed opencode version
+      ansible.builtin.command: "{{ dev_home }}/.opencode/bin/opencode --version"
+      register: opencode_current
+      changed_when: false
+      failed_when: false
+      check_mode: false
+
+    - name: Install opencode with the official installer
+      when: >-
+        opencode_current.rc != 0
+        or (opencode_version != 'latest'
+            and (opencode_current.stdout.split() | last | regex_replace('^v', '')) != opencode_version)
+      block:
+        - name: Create cache directory
+          ansible.builtin.file:
+            path: "{{ dev_home }}/.cache"
+            state: directory
+            mode: "0755"
+
+        - name: Download opencode installer
+          ansible.builtin.get_url:
+            url: "{{ opencode_install_url }}"
+            dest: "{{ dev_home }}/.cache/opencode-install.sh"
+            mode: "0755"
+            force: true
+
+        # ~/.opencode/bin/opencode に入る。PATH は下の symlink で通すので rc ファイルは触らせない
+        - name: Run opencode installer
+          ansible.builtin.command:
+            argv: >-
+              {{ ['bash', dev_home ~ '/.cache/opencode-install.sh', '--no-modify-path']
+                 + ([] if opencode_version == 'latest' else ['--version', opencode_version]) }}
+          changed_when: true
+
+    - name: Link opencode into ~/.local/bin
+      ansible.builtin.file:
+        src: "{{ dev_home }}/.opencode/bin/opencode"
+        dest: "{{ dev_home }}/.local/bin/opencode"
+        state: link
+        force: true
+
+    # 以前の版は npm でインストールしていたので、残っていれば消す
+    - name: Remove opencode installed by npm
+      ansible.builtin.file:
+        path: "{{ dev_home }}/.local/lib/node_modules/opencode-ai"
+        state: absent
 
     - name: Create opencode config directory
       ansible.builtin.file:
