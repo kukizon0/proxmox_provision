@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+# sshd は最初に現れた値を採用するので、ファイル名を 10- にして先に読ませる
+PubkeyAuthentication yes
+PasswordAuthentication {{ 'no' if ssh_disable_password_auth else 'yes' }}
+KbdInteractiveAuthentication no
+PermitRootLogin prohibit-password

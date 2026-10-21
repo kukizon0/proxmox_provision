@@ -1,0 +1,29 @@
+---
+- name: Install uv / tools as {{ dev_user }}
+  become: true
+  become_user: "{{ dev_user }}"
+  environment:
+    PATH: "{{ dev_home }}/.local/bin:{{ ansible_facts.env.PATH }}"
+  block:
+    - name: Check installed uv version
+      ansible.builtin.command: uv --version
+      register: uv_current
+      changed_when: false
+      check_mode: false
+      failed_when: false
+
+    - name: Install uv
+      ansible.builtin.include_tasks: "install_{{ uv_install_method }}.yml"
+      when: uv_current.rc != 0 or uv_current.stdout.split()[1] != uv_version
+
+    - name: Install Python versions with uv
+      ansible.builtin.command: uv python install {{ uv_python_versions | join(' ') }}
+      register: uv_python
+      changed_when: "'Installed' in uv_python.stderr"
+      when: uv_python_versions | length > 0
+
+    - name: Install uv tools
+      ansible.builtin.command: uv tool install {{ item }}
+      loop: "{{ uv_tools }}"
+      register: uv_tool
+      changed_when: "'already installed' not in uv_tool.stderr"

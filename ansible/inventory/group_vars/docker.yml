@@ -1,0 +1,3 @@
+---
+# Docker のテストノード向けの設定 (systemd が無いので guest agent は入れない)
+base_install_guest_agent: false

@@ -1,0 +1,15 @@
+---
+- name: Wait until hosts are reachable over SSH
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Wait for SSH connection
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+
+    - name: Wait for cloud-init to finish
+      ansible.builtin.command: cloud-init status --wait
+      register: cloud_init
+      changed_when: false
+      failed_when: cloud_init.rc not in [0, 2]   # 2 = 完了したが警告あり
+      when: "'docker' not in group_names"

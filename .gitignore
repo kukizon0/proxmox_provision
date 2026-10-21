@@ -1,0 +1,18 @@
+# secrets / local settings
+.env
+*.tfvars
+!*.tfvars.example
+
+# OpenTofu
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+# generated
+ansible/inventory/*.yml
+.state/
+
+# Python
+.venv/
+__pycache__/

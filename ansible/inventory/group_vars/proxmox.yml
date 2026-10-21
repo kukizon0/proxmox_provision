@@ -1,0 +1,3 @@
+---
+# Proxmox 上の VM 向けの設定
+base_install_guest_agent: true

@@ -1,0 +1,19 @@
+---
+- name: Create cache directory
+  ansible.builtin.file:
+    path: "{{ dev_home }}/.cache"
+    state: directory
+    mode: "0755"
+
+- name: Download uv installer
+  ansible.builtin.get_url:
+    url: "https://astral.sh/uv/{{ uv_version }}/install.sh"
+    dest: "{{ dev_home }}/.cache/uv-install-{{ uv_version }}.sh"
+    mode: "0755"
+
+- name: Run uv installer
+  ansible.builtin.command: "{{ dev_home }}/.cache/uv-install-{{ uv_version }}.sh"
+  environment:
+    UV_INSTALL_DIR: "{{ dev_home }}/.local/bin"
+    UV_NO_MODIFY_PATH: "1"
+  changed_when: true

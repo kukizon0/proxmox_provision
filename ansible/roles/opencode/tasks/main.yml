@@ -1,0 +1,34 @@
+---
+- name: Install Node.js and npm
+  ansible.builtin.apt:
+    name: [nodejs, npm]
+    state: present
+
+- name: Install opencode as {{ dev_user }}
+  become: true
+  become_user: "{{ dev_user }}"
+  environment:
+    # sudo せずに ~/.local/bin/opencode に入れる
+    NPM_CONFIG_PREFIX: "{{ dev_home }}/.local"
+    PATH: "{{ dev_home }}/.local/bin:{{ ansible_facts.env.PATH }}"
+  block:
+    - name: Install opencode-ai from npm
+      community.general.npm:
+        name: opencode-ai
+        version: "{{ omit if opencode_version == 'latest' else opencode_version }}"
+        state: "{{ 'latest' if opencode_version == 'latest' else 'present' }}"
+        global: true
+
+    - name: Create opencode config directory
+      ansible.builtin.file:
+        path: "{{ dev_home }}/.config/opencode"
+        state: directory
+        mode: "0755"
+      when: opencode_config | length > 0
+
+    - name: Write opencode config
+      ansible.builtin.copy:
+        content: "{{ opencode_config | to_nice_json }}\n"
+        dest: "{{ dev_home }}/.config/opencode/opencode.json"
+        mode: "0644"
+      when: opencode_config | length > 0

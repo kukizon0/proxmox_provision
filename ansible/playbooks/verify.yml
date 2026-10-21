@@ -1,0 +1,31 @@
+---
+- name: Verify provisioned tools
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Check tool versions in a login shell
+      ansible.builtin.command: bash -lc '{{ item }}'
+      loop:
+        - uv --version
+        - uvx --version
+        - ruff --version
+        - opencode --version
+        - git --version
+      register: versions
+      changed_when: false
+
+    - name: Show tool versions
+      ansible.builtin.debug:
+        msg: "{{ versions.results | map(attribute='stdout') | list }}"
+
+    - name: Check that password authentication is disabled
+      ansible.builtin.command: sshd -T
+      become: true
+      register: sshd_config
+      changed_when: false
+
+    - name: Assert sshd settings
+      ansible.builtin.assert:
+        that:
+          - "'passwordauthentication no' in sshd_config.stdout_lines"
+          - "'pubkeyauthentication yes' in sshd_config.stdout_lines"

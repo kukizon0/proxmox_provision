@@ -1,0 +1,25 @@
+---
+- name: Provision development VMs
+  hosts: all
+  become: true
+  pre_tasks:
+    - name: Look up home directory of {{ dev_user }}
+      ansible.builtin.getent:
+        database: passwd
+        key: "{{ dev_user }}"
+      tags: [always]
+
+    - name: Set dev_home
+      ansible.builtin.set_fact:
+        dev_home: "{{ ansible_facts.getent_passwd[dev_user][4] }}"
+      tags: [always]
+
+  roles:
+    - role: base
+      tags: [base]
+    - role: ssh_keys
+      tags: [ssh_keys]
+    - role: uv
+      tags: [uv]
+    - role: opencode
+      tags: [opencode]

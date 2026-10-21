@@ -1,0 +1,14 @@
+---
+- name: Reload sshd
+  ansible.builtin.systemd_service:
+    name: ssh
+    state: reloaded
+  when: ansible_facts.service_mgr == 'systemd'
+  listen: Reload sshd
+
+# systemd が無い環境 (Docker のテストノード) では待ち受け中の sshd (最も古いプロセス) に SIGHUP を送る
+- name: Reload sshd without systemd
+  ansible.builtin.command: pkill -HUP -o -x sshd
+  changed_when: true
+  when: ansible_facts.service_mgr != 'systemd'
+  listen: Reload sshd

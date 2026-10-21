@@ -1,0 +1,26 @@
+# cp terraform.tfvars.example terraform.tfvars して編集する
+# API トークンは .env の PROXMOX_VE_API_TOKEN で渡すのがおすすめ
+
+proxmox_endpoint = "https://192.168.1.10:8006/"
+node_name        = "pve"
+
+# image_datastore_id = "local"      # import / snippets コンテンツを有効にしておく
+# disk_datastore_id  = "local-lvm"
+# network_bridge     = "vmbr0"
+
+# vm_user              = "ubuntu"
+# ssh_public_key_path  = "~/.ssh/id_ed25519.pub"
+# ssh_private_key_path = "~/.ssh/id_ed25519"
+
+vms = {
+  dev01 = {
+    cores  = 4
+    memory = 8192
+  }
+  # 固定 IP にする場合
+  # dev02 = {
+  #   ipv4_address = "192.168.1.51/24"
+  #   ipv4_gateway = "192.168.1.1"
+  #   disk_size    = 64
+  # }
+}

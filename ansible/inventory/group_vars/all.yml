@@ -1,0 +1,52 @@
+---
+# すべての環境で共通の設定。環境ごとの上書きは proxmox.yml / docker.yml に書く。
+
+# セットアップ対象のユーザー (cloud-init で作成したユーザー)
+dev_user: "{{ ansible_user }}"
+
+# --- base ---
+base_timezone: Asia/Tokyo
+base_locale: ja_JP.UTF-8
+base_packages:
+  - build-essential
+  - ca-certificates
+  - curl
+  - git
+  - jq
+  - less
+  - locales
+  - make
+  - pipx
+  - ripgrep
+  - tmux
+  - tzdata
+  - unzip
+  - vim
+  - wget
+base_install_guest_agent: true
+
+# --- ssh_keys ---
+# 作業端末上の公開鍵ファイル (存在するものだけ登録される)
+ssh_authorized_key_files:
+  - ~/.ssh/id_ed25519.pub
+# 追加で登録したい公開鍵 (文字列)
+ssh_authorized_keys: []
+#  - "ssh-ed25519 AAAA... someone@example"
+# true にすると上記以外の鍵を authorized_keys から削除する
+ssh_authorized_keys_exclusive: false
+ssh_disable_password_auth: true
+
+# --- uv ---
+uv_version: "0.13.4"
+uv_install_method: official   # official (astral.sh のインストーラ) | pipx (PyPI)
+uv_python_versions:
+  - "3.13"
+uv_tools:
+  - ruff
+
+# --- opencode ---
+opencode_version: "1.19.3"    # "latest" も可
+# ~/.config/opencode/opencode.json に書き出す設定 (空なら作成しない)
+opencode_config: {}
+#  $schema: https://opencode.ai/config.json
+#  theme: opencode
