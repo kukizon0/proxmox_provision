@@ -125,6 +125,22 @@ make ssh      # 先頭の VM に SSH (HOST=dev02 で指定)
 
 `ENV` の既定は `proxmox` です。`.env` に `ENV=docker` と書けば既定を変えられます。
 
+### Proxmox Web UI のコンソールからログインする
+
+SSH は鍵認証のみですが、コンソール (noVNC / xterm.js) にはパスワードでログインできます。
+
+```bash
+make password      # ユーザー名は vm_user (既定: ubuntu)
+```
+
+パスワードは `terraform.tfvars` の `vm_password` で指定でき、省略すると自動生成されます。
+cloud-init で設定するので **VM 作成時にだけ** 反映されます。既に作った VM には SSH で入って設定してください。
+
+```bash
+make ssh HOST=dev01
+sudo passwd ubuntu
+```
+
 ### よく使う操作
 
 ```bash

@@ -95,6 +95,10 @@ destroy: $(TOFU_DIR)/.terraform ## tofu destroy (VM を削除)
 output: ## tofu output (VM の IP など)
 	$(TOFU) -chdir=$(TOFU_DIR) output vm_ips
 
+.PHONY: password
+password: ## コンソール (Proxmox Web UI) ログイン用のパスワードを表示する
+	@$(TOFU) -chdir=$(TOFU_DIR) output -raw vm_password; echo
+
 .PHONY: inventory
 inventory: ## tofu の出力から Ansible インベントリを生成する
 	@mkdir -p $(STATE_DIR)

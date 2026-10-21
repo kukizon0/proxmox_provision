@@ -9,6 +9,7 @@ node_name        = "pve"
 # network_bridge     = "vmbr0"
 
 # vm_user              = "ubuntu"
+# vm_password          = "..."   # 省略すると自動生成 (make password で表示)
 # ssh_public_key_path  = "~/.ssh/id_ed25519.pub"
 # ssh_private_key_path = "~/.ssh/id_ed25519"
 

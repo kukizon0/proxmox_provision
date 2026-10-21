@@ -6,6 +6,14 @@ locals {
     []
   )
   image_datastore_missing_content = setsubtract(["import", "snippets"], local.image_datastore_content_types)
+
+  vm_password = coalesce(var.vm_password, random_password.vm.result)
+}
+
+# コンソールログイン用のパスワード (vm_password 未指定時に使う)
+resource "random_password" "vm" {
+  length  = 20
+  special = false
 }
 
 data "proxmox_datastores" "image" {
@@ -108,6 +116,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
     user_account {
       username = var.vm_user
+      password = local.vm_password
       keys     = [local.ssh_public_key]
     }
 
@@ -125,7 +134,9 @@ resource "proxmox_virtual_environment_vm" "vm" {
   serial_device {}
 
   lifecycle {
-    # cloud image が更新されても既存 VM は作り直さない
-    ignore_changes = [disk[0].import_from]
+    # cloud image が更新されても既存 VM は作り直さない。
+    # user_account を変えると既存 VM の cloud-init が再実行され (再起動・SSH ホスト鍵の再生成)、
+    # 影響が大きいので作成時のみ反映する。
+    ignore_changes = [disk[0].import_from, initialization[0].user_account]
   }
 }

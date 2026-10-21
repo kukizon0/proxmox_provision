@@ -23,6 +23,13 @@ variable "vm_user" {
   default     = "ubuntu"
 }
 
+variable "vm_password" {
+  description = "コンソール (Proxmox Web UI) ログイン用のパスワード。null なら自動生成 (make password で表示)。SSH は鍵認証のみ"
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
 variable "ssh_public_key_path" {
   description = "VM に登録する SSH 公開鍵 (作業端末側のパス)"
   type        = string

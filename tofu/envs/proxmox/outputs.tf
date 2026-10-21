@@ -14,6 +14,12 @@ output "vm_ips" {
   value       = local.vm_ips
 }
 
+output "vm_password" {
+  description = "コンソールログイン用のパスワード (make password で表示)"
+  value       = local.vm_password
+  sensitive   = true
+}
+
 # Makefile がこの値を ansible/inventory/proxmox.yml に書き出す。
 # docker 環境も同じ形の値を出力する。
 output "ansible_inventory" {
